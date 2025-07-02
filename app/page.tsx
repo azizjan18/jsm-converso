@@ -10,7 +10,7 @@ import {getSubjectColor} from "@/lib/utils";
 const Page = async () => {
 
     const companions = await getAllCompanions({limit:3});
-    const recentSessionsCompanions = await getRecentSessions({limit: 10});
+    const recentSessionsCompanions = await getRecentSessions({limit: 4});
   return (
     <main>
       <h1 > Popular Companions</h1>
