@@ -34,13 +34,13 @@ const CompanionComponent = ({companionId, subject, topic,
     const [messages, setMessages] = useState<SavedMessage[]>([])
 
     useEffect(() => {
-            if (lottiRef){
-                if(isSpeaking){
-                    lottiRef.current?.play()
-                }else {
-                    lottiRef.current?.stop()
-                }
+        if (lottiRef){
+            if(isSpeaking){
+                lottiRef.current?.play()
+            }else {
+                lottiRef.current?.stop()
             }
+        }
     }, [isSpeaking,lottiRef]);
 
     useEffect(() => {
@@ -51,9 +51,10 @@ const CompanionComponent = ({companionId, subject, topic,
             addToSessionHistory(companionId)
         }
 
-        const onMessage =(messaage:Message)=> {
-            if(messaage.type === 'transcript' && messaage.transcript==='final'){
-                const newMessage={role:messaage.role,content:messaage.transcript}
+        const onMessage =(message:Message)=> {
+            console.log("[VAPI MESSAGE]", message);
+            if(message.type === 'transcript' && message.transcriptType==='final'){
+                const newMessage={role:message.role,content:message.transcript}
                 setMessages((prev) => [newMessage, ...prev])
             }
 
@@ -81,30 +82,33 @@ const CompanionComponent = ({companionId, subject, topic,
         }
 
     }, []);
-    
 
 
-const toggleMicrophone = () => {
-    const isMuted = vapi.isMuted()
-    vapi.setMuted(!isMuted)
 
-}
+    const toggleMicrophone = () => {
+        const isMuted = vapi.isMuted()
+        console.log("Mic currently muted?", isMuted);
+        vapi.setMuted(!isMuted)
+        setIsMuted(!isMuted); // 👈 REQUIRED
+        console.log("Mic currently muted?", !isMuted);
 
-const handleCall = async () => {
-    setCallStatus(CallStatus.CONNECTING)
-
-    const assistantOverrides ={
-        variableValues:{
-            subject,topic,style
-        },
-        clientMessages:['transcript'],
-        serverMessages:[],
     }
-    vapi.start(configureAssistant(voice,style),assistantOverrides)
-}
+
+    const handleCall = async () => {
+        setCallStatus(CallStatus.CONNECTING)
+
+        const assistantOverrides ={
+            variableValues:{
+                subject,topic,style
+            },
+            clientMessages:['transcript'],
+            serverMessages:[],
+        }
+        vapi.start(configureAssistant(voice,style),assistantOverrides)
+    }
 
     const handleDisconnect = () => {
-      setCallStatus(CallStatus.FINISHED)
+        setCallStatus(CallStatus.FINISHED)
         vapi.stop()
     }
 
@@ -174,7 +178,7 @@ const handleCall = async () => {
                                 </p>
                             )
                         }else {
-                             return( <p key={index} className="text-primary max-sm:text-sm">
+                            return( <p key={index} className="text-primary max-sm:text-sm">
                                 {userName}:{message.content}
                             </p>)
                         }
